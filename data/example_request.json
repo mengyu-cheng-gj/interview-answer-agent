@@ -1,0 +1,14 @@
+{
+  "candidate": {
+    "name": "示例候选人",
+    "target_role": "AI 应用开发工程师",
+    "experiences": [
+      "实现课程资料问答原型，负责文档切分与检索接口；未进行正式效果评测。"
+    ],
+    "job_description": "开发大模型应用。"
+  },
+  "question": "介绍一下你的 RAG 项目。",
+  "language": "both",
+  "style": "natural",
+  "duration_seconds": 120
+}

@@ -1,0 +1,68 @@
+services:
+  vllm:
+    image: "${VLLM_IMAGE:?请填写已确认兼容的 vLLM 镜像版本}"
+    shm_size: "2gb"
+    volumes:
+      - hf_cache:/root/.cache/huggingface
+    command:
+      - "--model"
+      - "${LOCAL_MODEL:-Qwen/Qwen2.5-3B-Instruct}"
+      - "--served-model-name"
+      - "interview-model"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8001"
+      - "--dtype"
+      - "auto"
+      - "--gpu-memory-utilization"
+      - "0.85"
+      - "--max-model-len"
+      - "8192"
+      - "--max-num-seqs"
+      - "2"
+      - "--api-key"
+      - "${LOCAL_LLM_API_KEY:?请填写本地模型服务密钥}"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=5)"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 120s
+    restart: unless-stopped
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+  api:
+    build: .
+    environment:
+      LLM_MODEL: "interview-model"
+      LLM_BASE_URL: "http://vllm:8001/v1"
+      LLM_API_KEY: "${LOCAL_LLM_API_KEY:?请填写本地模型服务密钥}"
+      CACHE_ENABLED: "true"
+      REDIS_URL: "redis://redis:6379/0"
+      CACHE_TTL_SECONDS: "${CACHE_TTL_SECONDS:-3600}"
+      HIGHLIGHT_CACHE_VERSION: "${HIGHLIGHT_CACHE_VERSION:-v1}"
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+      vllm:
+        condition: service_healthy
+    restart: unless-stopped
+volumes:
+  hf_cache:

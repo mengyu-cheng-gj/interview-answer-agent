@@ -1,0 +1,46 @@
+{
+  "candidate": {
+    "candidate_id": "candidate_001",
+    "name": "Mengyu",
+    "education": null,
+    "years_of_experience": null,
+    "skills": [
+      "Python",
+      "FastAPI",
+      "RAG"
+    ],
+    "projects": [
+      {
+        "project_id": "project_001",
+        "name": "课程知识库问答助手",
+        "background": "帮助学生检索课程资料并回答问题",
+        "role": "负责文档处理和检索接口",
+        "tech_stack": [
+          "Python",
+          "FastAPI"
+        ],
+        "actions": [
+          "实现文档切分",
+          "实现检索接口"
+        ],
+        "results": [
+          "完成可运行的原型，尚未进行正式效果评测"
+        ]
+      }
+    ]
+  },
+  "target_job": {
+    "title": "大模型应用开发工程师",
+    "company": null,
+    "description": "开发和维护大模型应用",
+    "requirements": [
+      "具备 Python 开发能力",
+      "具备 RAG 应用开发经验"
+    ]
+  },
+  "question": "介绍一下你做过的 RAG 项目。",
+  "question_type": "project",
+  "language": "both",
+  "style": "natural",
+  "duration_seconds": 120
+}

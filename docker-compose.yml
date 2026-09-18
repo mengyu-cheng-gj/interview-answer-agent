@@ -1,0 +1,32 @@
+services:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+  api:
+    build: .
+    environment:
+      LLM_MODEL: "${LLM_MODEL:?请填写 LLM_MODEL}"
+      LLM_BASE_URL: "${LLM_BASE_URL:?请填写 LLM_BASE_URL}"
+      LLM_API_KEY: "${LLM_API_KEY:?请填写 LLM_API_KEY}"
+      CACHE_ENABLED: "true"
+      REDIS_URL: "redis://redis:6379/0"
+      CACHE_TTL_SECONDS: "${CACHE_TTL_SECONDS:-3600}"
+      HIGHLIGHT_CACHE_VERSION: "${HIGHLIGHT_CACHE_VERSION:-v1}"
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
